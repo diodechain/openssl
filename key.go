@@ -18,6 +18,7 @@ package openssl
 import "C"
 
 import (
+	"encoding/binary"
 	"errors"
 	"io/ioutil"
 	"runtime"
@@ -452,6 +453,90 @@ func LoadPublicKeyFromDER(der_block []byte) (PublicKey, error) {
 		return nil, errors.New("failed reading public key der")
 	}
 
+	p := &pKey{key: key}
+	runtime.SetFinalizer(p, func(p *pKey) {
+		C.X_EVP_PKEY_free(p.key)
+	})
+	return p, nil
+}
+
+// LoadECPrivateKeyFromBytes loads a ec private key from a raw bytes.
+func LoadECPrivateKeyFromBytes(curve EllipticCurve, priv_bytes []byte) (PrivateKey, error) {
+	if len(priv_bytes) == 0 {
+		return nil, errors.New("empty private key bytes")
+	}
+	ec_key := C.EC_KEY_new_by_curve_name(C.int(curve))
+	if ec_key == nil {
+		return nil, errors.New("failed creating ec key")
+	}
+	defer C.EC_KEY_free(ec_key)
+
+	bignum_bytes := make([]byte, 4)
+	binary.BigEndian.PutUint32(bignum_bytes[0:], uint32(len(priv_bytes)))
+	bignum_bytes = append(bignum_bytes, priv_bytes...)
+	priv_bignum := C.BN_mpi2bn((*C.uchar)(unsafe.Pointer(&bignum_bytes[0])), C.int(len(priv_bytes)+4), nil)
+	if priv_bignum == nil {
+		return nil, errors.New("failed creating private key bignumber")
+	}
+	if int(C.EC_KEY_set_private_key(ec_key, priv_bignum)) != 1 {
+		return nil, errors.New("failed setting private key")
+	}
+	key := C.X_EVP_PKEY_new()
+	if ec_key == nil {
+		return nil, errors.New("failed creating evp key")
+	}
+	if int(C.EVP_PKEY_set1_EC_KEY(key, ec_key)) != 1 {
+		return nil, errors.New("failed setting evp key")
+	}
+	p := &pKey{key: key}
+	runtime.SetFinalizer(p, func(p *pKey) {
+		C.X_EVP_PKEY_free(p.key)
+	})
+	return p, nil
+}
+
+// LoadECPublicKeyFromBytes loads a ec public key from a raw bytes.
+func LoadECPublicKeyFromBytes(curve EllipticCurve, pub_bytes []byte) (PublicKey, error) {
+	if len(pub_bytes) == 0 {
+		return nil, errors.New("empty public key bytes")
+	}
+	ec_group := C.EC_GROUP_new_by_curve_name(C.int(curve))
+	if ec_group == nil {
+		return nil, errors.New("failed creating ec group")
+	}
+	defer C.EC_GROUP_free(ec_group)
+
+	pub_point := C.EC_POINT_new(ec_group)
+	if ec_group == nil {
+		return nil, errors.New("failed creating ec group")
+	}
+	defer C.EC_POINT_free(pub_point)
+
+	bn_ctx := C.BN_CTX_new()
+	if bn_ctx == nil {
+		return nil, errors.New("failed creating bn context")
+	}
+	defer C.BN_CTX_free(bn_ctx)
+
+	ec_key := C.EC_KEY_new_by_curve_name(C.int(curve))
+	if ec_key == nil {
+		return nil, errors.New("failed creating ec key")
+	}
+	defer C.EC_KEY_free(ec_key)
+
+	if int(C.EC_POINT_oct2point(ec_group, pub_point, (*C.uchar)(unsafe.Pointer(&pub_bytes[0])), C.ulong(len(pub_bytes)), bn_ctx)) != 1 {
+		return nil, errors.New("failed creating load public key to ec point")
+	}
+	if int(C.EC_KEY_set_public_key(ec_key, pub_point)) != 1 {
+		return nil, errors.New("failed setting public key")
+	}
+	key := C.X_EVP_PKEY_new()
+	if ec_key == nil {
+		return nil, errors.New("failed creating evp key")
+	}
+	if int(C.EVP_PKEY_set1_EC_KEY(key, ec_key)) != 1 {
+		return nil, errors.New("failed setting evp key")
+	}
 	p := &pKey{key: key}
 	runtime.SetFinalizer(p, func(p *pKey) {
 		C.X_EVP_PKEY_free(p.key)

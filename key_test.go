@@ -408,6 +408,20 @@ func TestMarshalEC(t *testing.T) {
 		t.Fatal("invalid private key bytes")
 	}
 
+	loaded_priv_from_bytes, err := LoadECPrivateKeyFromBytes(Prime256v1, pbyte)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tls_pbyte, err = loaded_priv_from_bytes.MarshalECPrivateKeyBytes()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(pbyte, tls_pbyte) {
+		ioutil.WriteFile("generated", []byte(hex.Dump(pbyte)), 0644)
+		ioutil.WriteFile("hardcoded", []byte(hex.Dump(tls_pbyte)), 0644)
+		t.Fatal("invalid private key bytes")
+	}
+
 	der, err = key.MarshalPKIXPublicKeyDER()
 	if err != nil {
 		t.Fatal(err)
@@ -431,6 +445,20 @@ func TestMarshalEC(t *testing.T) {
 		ioutil.WriteFile("generated", []byte(hex.Dump(pbyte)), 0644)
 		ioutil.WriteFile("hardcoded", []byte(hex.Dump(tls_pbyte)), 0644)
 		t.Fatal("invalid public key bytes")
+	}
+
+	loaded_pub_from_bytes, err := LoadECPublicKeyFromBytes(Prime256v1, pbyte)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tls_pbyte, err = loaded_pub_from_bytes.MarshalECPublicKeyBytes(Prime256v1, KeyConversionUncompressed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(pbyte, tls_pbyte) {
+		ioutil.WriteFile("generated", []byte(hex.Dump(pbyte)), 0644)
+		ioutil.WriteFile("hardcoded", []byte(hex.Dump(tls_pbyte)), 0644)
+		t.Fatal("invalid private key bytes")
 	}
 
 	pem, err = key.MarshalPKIXPublicKeyPEM()
