@@ -36,28 +36,32 @@ var (
 	SHA512_Method Method = C.X_EVP_sha512()
 )
 
+// TODO: split ECKey type
 // Constants for the various key types.
 // Mapping of name -> NID taken from openssl/evp.h
 const (
-	KeyTypeNone    = NID_undef
-	KeyTypeRSA     = NID_rsaEncryption
-	KeyTypeRSA2    = NID_rsa
-	KeyTypeDSA     = NID_dsa
-	KeyTypeDSA1    = NID_dsa_2
-	KeyTypeDSA2    = NID_dsaWithSHA
-	KeyTypeDSA3    = NID_dsaWithSHA1
-	KeyTypeDSA4    = NID_dsaWithSHA1_2
-	KeyTypeDH      = NID_dhKeyAgreement
-	KeyTypeDHX     = NID_dhpublicnumber
-	KeyTypeEC      = NID_X9_62_id_ecPublicKey
-	KeyTypeHMAC    = NID_hmac
-	KeyTypeCMAC    = NID_cmac
-	KeyTypeTLS1PRF = NID_tls1_prf
-	KeyTypeHKDF    = NID_hkdf
-	KeyTypeX25519  = NID_X25519
-	KeyTypeX448    = NID_X448
-	KeyTypeED25519 = NID_ED25519
-	KeyTypeED448   = NID_ED448
+	KeyTypeNone               = NID_undef
+	KeyTypeRSA                = NID_rsaEncryption
+	KeyTypeRSA2               = NID_rsa
+	KeyTypeDSA                = NID_dsa
+	KeyTypeDSA1               = NID_dsa_2
+	KeyTypeDSA2               = NID_dsaWithSHA
+	KeyTypeDSA3               = NID_dsaWithSHA1
+	KeyTypeDSA4               = NID_dsaWithSHA1_2
+	KeyTypeDH                 = NID_dhKeyAgreement
+	KeyTypeDHX                = NID_dhpublicnumber
+	KeyTypeEC                 = NID_X9_62_id_ecPublicKey
+	KeyTypeHMAC               = NID_hmac
+	KeyTypeCMAC               = NID_cmac
+	KeyTypeTLS1PRF            = NID_tls1_prf
+	KeyTypeHKDF               = NID_hkdf
+	KeyTypeX25519             = NID_X25519
+	KeyTypeX448               = NID_X448
+	KeyTypeED25519            = NID_ED25519
+	KeyTypeED448              = NID_ED448
+	KeyConversionCompressed   = 2
+	KeyConversionUncompressed = 4
+	KeyConversionHybrid       = 6
 )
 
 type PublicKey interface {
@@ -85,6 +89,9 @@ type PublicKey interface {
 	// `KeyType() == KeyTypeRSA2` would both have `BaseType() == KeyTypeRSA`.
 	BaseType() NID
 
+	// MarshalECPublicKeyBytes converts the ec public key to bytes
+	MarshalECPublicKeyBytes(curve EllipticCurve, conversion_type int) (pub_bytes []byte, err error)
+
 	evpPKey() *C.EVP_PKEY
 }
 
@@ -101,6 +108,9 @@ type PrivateKey interface {
 	// MarshalPKCS1PrivateKeyDER converts the private key to DER-encoded PKCS1
 	// format
 	MarshalPKCS1PrivateKeyDER() (der_block []byte, err error)
+
+	// MarshalECPrivateKeyBytes converts the ec private key to bytes
+	MarshalECPrivateKeyBytes() (priv_bytes []byte, err error)
 }
 
 type pKey struct {
@@ -270,6 +280,54 @@ func (key *pKey) MarshalPKIXPublicKeyDER() (der_block []byte,
 	}
 
 	return ioutil.ReadAll(asAnyBio(bio))
+}
+
+func (key *pKey) MarshalECPrivateKeyBytes() (priv_bytes []byte, err error) {
+	ec_key := C.EVP_PKEY_get1_EC_KEY(key.key)
+	if ec_key == nil {
+		return nil, errors.New("failed to get ec key")
+	}
+	priv_bignum := C.EC_KEY_get0_private_key(ec_key)
+	if priv_bignum == nil {
+		return nil, errors.New("failed to get ec private key bignumber")
+	}
+	priv_length := int(C.BN_bn2mpi(priv_bignum, nil))
+	priv_bytes = make([]byte, priv_length)
+	if int(C.BN_bn2mpi(priv_bignum, (*C.uchar)(unsafe.Pointer(&priv_bytes[0])))) != priv_length {
+		return nil, errors.New("failed dumping ec private key bytes")
+	}
+	// first four bytes is length: binary.BigEndian.Uint32(priv_bytes[0:4])
+	// note: sometimes return zero prefix byte
+	return priv_bytes[4:], nil
+}
+
+func (key *pKey) MarshalECPublicKeyBytes(curve EllipticCurve, conversion_type int) (pub_bytes []byte, err error) {
+	ec_group := C.EC_GROUP_new_by_curve_name(C.int(curve))
+	if ec_group == nil {
+		return nil, errors.New("failed to get ec group")
+	}
+	bn_ctx := C.BN_CTX_new()
+	if bn_ctx == nil {
+		return nil, errors.New("failed to get bn context")
+	}
+	ec_key := C.EVP_PKEY_get1_EC_KEY(key.key)
+	if ec_key == nil {
+		return nil, errors.New("failed to get ec key")
+	}
+	pub_point := C.EC_KEY_get0_public_key(ec_key)
+	if pub_point == nil {
+		return nil, errors.New("failed to get ec public key point")
+	}
+	pub_length := int(C.EC_POINT_point2oct(ec_group, pub_point, C.point_conversion_form_t(conversion_type), nil, 0, bn_ctx))
+	pub_bytes = make([]byte, pub_length)
+	if int(C.EC_POINT_point2oct(ec_group, pub_point, C.point_conversion_form_t(conversion_type), (*C.uchar)(unsafe.Pointer(&pub_bytes[0])), C.ulong(pub_length), bn_ctx)) != pub_length {
+		C.EC_GROUP_free(ec_group)
+		C.BN_CTX_free(bn_ctx)
+		return nil, errors.New("failed dumping public key bytes")
+	}
+	C.EC_GROUP_free(ec_group)
+	C.BN_CTX_free(bn_ctx)
+	return pub_bytes, nil
 }
 
 // LoadPrivateKeyFromPEM loads a private key from a PEM-encoded block.

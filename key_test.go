@@ -20,6 +20,7 @@ import (
 	"crypto/rsa"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/asn1"
 	"encoding/hex"
 	pem_pkg "encoding/pem"
 	"io/ioutil"
@@ -172,6 +173,22 @@ func TestGenerateEC(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	_, err = key.MarshalECPrivateKeyBytes()
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = key.MarshalECPublicKeyBytes(Prime256v1, KeyConversionCompressed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = key.MarshalECPublicKeyBytes(Prime256v1, KeyConversionUncompressed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = key.MarshalECPublicKeyBytes(Prime256v1, KeyConversionHybrid)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestGenerateEd25519(t *testing.T) {
@@ -284,6 +301,44 @@ func TestSignED25519(t *testing.T) {
 	})
 }
 
+// ECPrivateKey reflects an ASN.1 Elliptic Curve Private Key Structure.
+// References:
+//   RFC 5915
+//   SEC1 - http://www.secg.org/sec1-v2.pdf
+// Per RFC 5915 the NamedCurveOID is marked as ASN.1 OPTIONAL, however in
+// most cases it is not.
+type ECPrivateKey struct {
+	Version       int
+	PrivateKey    []byte
+	NamedCurveOID asn1.ObjectIdentifier `asn1:"optional,explicit,tag:0"`
+	PublicKey     asn1.BitString        `asn1:"optional,explicit,tag:1"`
+}
+
+// ECPublicKey ec public key format
+// see (maybe): https://tls.mbed.org/kb/cryptography/asn1-key-structures-in-der-and-pem
+type ECPublicKey struct {
+	Algorithm struct {
+		Algorithm  asn1.ObjectIdentifier
+		Parameters []byte `asn1:"optional"`
+	}
+	PublicKey asn1.BitString
+}
+
+func extractECPrivateKeyBytesFromDer(derD []byte) []byte {
+	var privKey ECPrivateKey
+	if _, err := asn1.Unmarshal(derD, &privKey); err != nil {
+		return nil
+	}
+	return privKey.PrivateKey
+}
+func extractECPublicKeyBytesFromDer(derQ []byte) []byte {
+	var pubKey ECPublicKey
+	if _, err := asn1.Unmarshal(derQ, &pubKey); err != nil {
+		return nil
+	}
+	return pubKey.PublicKey.Bytes
+}
+
 func TestMarshalEC(t *testing.T) {
 	key, err := LoadPrivateKeyFromPEM(prime256v1KeyBytes)
 	if err != nil {
@@ -342,6 +397,17 @@ func TestMarshalEC(t *testing.T) {
 			hex.Dump(der), hex.Dump(tls_der))
 	}
 
+	pbyte, err := key.MarshalECPrivateKeyBytes()
+	if err != nil {
+		t.Fatal(err)
+	}
+	tls_pbyte := extractECPrivateKeyBytesFromDer(tls_der)
+	if !bytes.Equal(pbyte, tls_pbyte) {
+		ioutil.WriteFile("generated", []byte(hex.Dump(pbyte)), 0644)
+		ioutil.WriteFile("hardcoded", []byte(hex.Dump(tls_pbyte)), 0644)
+		t.Fatal("invalid private key bytes")
+	}
+
 	der, err = key.MarshalPKIXPublicKeyDER()
 	if err != nil {
 		t.Fatal(err)
@@ -354,6 +420,17 @@ func TestMarshalEC(t *testing.T) {
 		ioutil.WriteFile("generated", []byte(hex.Dump(der)), 0644)
 		ioutil.WriteFile("hardcoded", []byte(hex.Dump(tls_der)), 0644)
 		t.Fatal("invalid public key der bytes")
+	}
+
+	pbyte, err = key.MarshalECPublicKeyBytes(Prime256v1, KeyConversionUncompressed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tls_pbyte = extractECPublicKeyBytesFromDer(tls_der)
+	if !bytes.Equal(pbyte, tls_pbyte) {
+		ioutil.WriteFile("generated", []byte(hex.Dump(pbyte)), 0644)
+		ioutil.WriteFile("hardcoded", []byte(hex.Dump(tls_pbyte)), 0644)
+		t.Fatal("invalid public key bytes")
 	}
 
 	pem, err = key.MarshalPKIXPublicKeyPEM()
