@@ -321,7 +321,7 @@ func (key *pKey) MarshalECPublicKeyBytes(curve EllipticCurve, conversion_type in
 	}
 	pub_length := int(C.EC_POINT_point2oct(ec_group, pub_point, C.point_conversion_form_t(conversion_type), nil, 0, bn_ctx))
 	pub_bytes = make([]byte, pub_length)
-	if int(C.EC_POINT_point2oct(ec_group, pub_point, C.point_conversion_form_t(conversion_type), (*C.uchar)(unsafe.Pointer(&pub_bytes[0])), C.ulong(pub_length), bn_ctx)) != pub_length {
+	if int(C.EC_POINT_point2oct(ec_group, pub_point, C.point_conversion_form_t(conversion_type), (*C.uchar)(unsafe.Pointer(&pub_bytes[0])), C.size_t(pub_length), bn_ctx)) != pub_length {
 		C.EC_GROUP_free(ec_group)
 		C.BN_CTX_free(bn_ctx)
 		return nil, errors.New("failed dumping public key bytes")
@@ -524,7 +524,7 @@ func LoadECPublicKeyFromBytes(curve EllipticCurve, pub_bytes []byte) (PublicKey,
 	}
 	defer C.EC_KEY_free(ec_key)
 
-	if int(C.EC_POINT_oct2point(ec_group, pub_point, (*C.uchar)(unsafe.Pointer(&pub_bytes[0])), C.ulong(len(pub_bytes)), bn_ctx)) != 1 {
+	if int(C.EC_POINT_oct2point(ec_group, pub_point, (*C.uchar)(unsafe.Pointer(&pub_bytes[0])), C.size_t(len(pub_bytes)), bn_ctx)) != 1 {
 		return nil, errors.New("failed creating load public key to ec point")
 	}
 	if int(C.EC_KEY_set_public_key(ec_key, pub_point)) != 1 {
