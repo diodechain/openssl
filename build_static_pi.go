@@ -12,13 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build !openssl_static,!openssl_static_pi
+// +build openssl_static_pi
 
 package openssl
 
-// #cgo linux windows pkg-config: libssl libcrypto
-// #cgo linux CFLAGS: -Wno-deprecated-declarations
-// #cgo darwin CFLAGS: -I/usr/local/opt/openssl/include -Wno-deprecated-declarations
-// #cgo darwin LDFLAGS: -L/usr/local/opt/openssl/lib -lssl -lcrypto
-// #cgo windows CFLAGS: -DWIN32_LEAN_AND_MEAN
+// #cgo linux,arm CFLAGS: -I/usr/local/openssl/include -Wno-deprecated-declarations
+// #cgo linux,arm LDFLAGS: -L/usr/local/openssl/lib -lssl -lcrypto
 import "C"
