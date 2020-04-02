@@ -176,6 +176,8 @@ type EllipticCurve int
 const (
 	// P-256: X9.62/SECG curve over a 256 bit prime field
 	Prime256v1 EllipticCurve = C.NID_X9_62_prime256v1
+	// P-256: curve over a 256 bit prime field (Ethereum Standard)
+	Secp256k1 EllipticCurve = C.NID_secp256k1
 	// P-384: NIST/SECG curve over a 384 bit prime field
 	Secp384r1 EllipticCurve = C.NID_secp384r1
 	// P-521: NIST/SECG curve over a 521 bit prime field
