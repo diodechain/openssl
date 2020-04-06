@@ -1,4 +1,5 @@
 # OpenSSL bindings for Go
+[![Build Status](https://travis-ci.org/diodechain/openssl.svg?branch=master)](https://travis-ci.org/diodechain/openssl)
 
 Please see http://godoc.org/github.com/diodechain/openssl for more info
 
