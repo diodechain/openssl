@@ -16,7 +16,6 @@
 
 package openssl
 
-// #cgo pkg-config: --libs-only-L --static libssl libcrypto
 // #cgo linux windows LDFLAGS: -l:libssl.a -l:libcrypto.a
 // #cgo CFLAGS: -Wno-deprecated-declarations
 // #cgo darwin CFLAGS: -I/usr/local/opt/openssl/include
