@@ -16,10 +16,10 @@
 
 package openssl
 
-// #cgo pkg-config: --static --libs-only-L libssl libcrypto
+// #cgo linux windows pkg-config: --static --libs-only-L libssl libcrypto
 // #cgo linux windows LDFLAGS: -l:libssl.a -l:libcrypto.a
 // #cgo CFLAGS: -Wno-deprecated-declarations
 // #cgo darwin CFLAGS: -I/usr/local/opt/openssl/include
-// #cgo darwin LDFLAGS: -llibssl.a -llibcrypto.a
+// #cgo darwin LDFLAGS: -L/usr/local/opt/openssl/lib -llibssl.a -llibcrypto.a
 // #cgo windows CFLAGS: -DWIN32_LEAN_AND_MEAN
 import "C"
