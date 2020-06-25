@@ -983,6 +983,18 @@ int X_SSL_CTX_set1_curves(SSL_CTX* ctx, int *clist, int clistlen) {
     return SSL_CTX_set1_curves(ctx, clist, clistlen);
 }
 
+int X_SSL_CTX_set_proto_version(SSL_CTX* ctx, int minVersion, int maxVersion)  {
+    int res = 0;
+    if (SSL_CTX_set_min_proto_version(ctx, minVersion) != 1) {
+        return res;
+    }
+    if (SSL_CTX_set_max_proto_version(ctx, maxVersion) != 1) {
+        return res;
+    }
+    res = 1;
+    return res;
+}
+
 int X_BIO_get_flags(BIO *b) {
 	return BIO_get_flags(b);
 }

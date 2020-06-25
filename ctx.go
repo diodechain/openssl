@@ -83,24 +83,15 @@ const (
 
 // NewCtxWithVersion creates an SSL context that is specific to the provided
 // SSL version. See http://www.openssl.org/docs/ssl/SSL_CTX_new.html for more.
-func NewCtxWithVersion(version SSLVersion) (*Ctx, error) {
+func NewCtxWithVersion(version SSLVersion) (ctx *Ctx, err error) {
 	var method *C.SSL_METHOD
-	switch version {
-	case SSLv3:
-		method = C.X_SSLv3_method()
-	case TLSv1:
-		method = C.X_TLSv1_method()
-	case TLSv1_1:
-		method = C.X_TLSv1_1_method()
-	case TLSv1_2:
-		method = C.X_TLSv1_2_method()
-	case AnyVersion:
-		method = C.X_SSLv23_method()
-	}
+	method = C.TLS_method()
 	if method == nil {
 		return nil, errors.New("unknown ssl/tls version")
 	}
-	return newCtx(method)
+	ctx, err = newCtx(method)
+	err = ctx.SetProtoVersion(version)
+	return
 }
 
 // NewCtx creates a context that supports any TLS version 1.0 and newer.
@@ -183,6 +174,36 @@ const (
 	// P-521: NIST/SECG curve over a 521 bit prime field
 	Secp521r1 EllipticCurve = C.NID_secp521r1
 )
+
+// SetProtoVersion sets the protocol version send by the SSL context
+func (c *Ctx) SetProtoVersion(version SSLVersion) error {
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
+	var minv C.int
+	var maxv C.int
+	switch version {
+	case SSLv3:
+		minv = C.SSL3_VERSION
+		maxv = C.SSL3_VERSION
+	case TLSv1:
+		minv = C.TLS1_VERSION
+		maxv = C.TLS1_VERSION
+	case TLSv1_1:
+		minv = C.TLS1_1_VERSION
+		maxv = C.TLS1_1_VERSION
+	case TLSv1_2:
+		minv = C.TLS1_2_VERSION
+		maxv = C.TLS1_2_VERSION
+	case AnyVersion:
+		minv = C.SSL2_VERSION
+		maxv = C.TLS1_2_VERSION
+	}
+
+	if int(C.X_SSL_CTX_set_proto_version(c.ctx, minv, maxv)) != 1 {
+		return errorFromErrorQueue()
+	}
+	return nil
+}
 
 // SetEllipticCurve sets the elliptic curve used by the SSL context to
 // enable an ECDH cipher suite to be selected during the handshake.
