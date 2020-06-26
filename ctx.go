@@ -87,7 +87,7 @@ func NewCtxWithVersion(version SSLVersion) (ctx *Ctx, err error) {
 	var method *C.SSL_METHOD
 	method = C.TLS_method()
 	if method == nil {
-		return nil, errors.New("unknown ssl/tls version")
+		return nil, errors.New("couldn't create tls method")
 	}
 	ctx, err = newCtx(method)
 	err = ctx.SetProtoVersion(version)
@@ -97,9 +97,6 @@ func NewCtxWithVersion(version SSLVersion) (ctx *Ctx, err error) {
 // NewCtx creates a context that supports any TLS version 1.0 and newer.
 func NewCtx() (*Ctx, error) {
 	c, err := NewCtxWithVersion(AnyVersion)
-	if err == nil {
-		c.SetOptions(NoSSLv2 | NoSSLv3)
-	}
 	return c, err
 }
 
@@ -182,9 +179,6 @@ func (c *Ctx) SetProtoVersion(version SSLVersion) error {
 	var minv C.int
 	var maxv C.int
 	switch version {
-	case SSLv3:
-		minv = C.SSL3_VERSION
-		maxv = C.SSL3_VERSION
 	case TLSv1:
 		minv = C.TLS1_VERSION
 		maxv = C.TLS1_VERSION
@@ -195,12 +189,11 @@ func (c *Ctx) SetProtoVersion(version SSLVersion) error {
 		minv = C.TLS1_2_VERSION
 		maxv = C.TLS1_2_VERSION
 	case AnyVersion:
-		minv = C.SSL2_VERSION
+		minv = C.TLS1_VERSION
 		maxv = C.TLS1_2_VERSION
 	}
-
 	if int(C.X_SSL_CTX_set_proto_version(c.ctx, minv, maxv)) != 1 {
-		return errorFromErrorQueue()
+		return errors.New("unknown ssl/tls version")
 	}
 	return nil
 }
