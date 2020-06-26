@@ -85,7 +85,7 @@ const (
 // SSL version. See http://www.openssl.org/docs/ssl/SSL_CTX_new.html for more.
 func NewCtxWithVersion(version SSLVersion) (ctx *Ctx, err error) {
 	var method *C.SSL_METHOD
-	method = C.TLS_method()
+	method = C.X_TLS_method()
 	if method == nil {
 		return nil, errors.New("couldn't create tls method")
 	}

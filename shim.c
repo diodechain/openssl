@@ -873,7 +873,7 @@ const SSL_METHOD *X_TLSv1_method() {
 }
 
 const SSL_METHOD *X_TLSv1_1_method() {
-#if defined(TLS1_1_VERSION) && !defined(OPENSSL_SYSNAME_MACOSX)
+#if defined(TLS1_1_VERSION)
 	return TLSv1_1_method();
 #else
 	return NULL;
@@ -881,11 +881,15 @@ const SSL_METHOD *X_TLSv1_1_method() {
 }
 
 const SSL_METHOD *X_TLSv1_2_method() {
-#if defined(TLS1_2_VERSION) && !defined(OPENSSL_SYSNAME_MACOSX)
+#if defined(TLS1_2_VERSION)
 	return TLSv1_2_method();
 #else
 	return NULL;
 #endif
+}
+
+const SSL_METHOD *X_TLS_method() {
+    return TLS_method();
 }
 
 int X_SSL_CTX_new_index() {
