@@ -46,3 +46,12 @@ func TestCtxSessCacheSizeOption(t *testing.T) {
 		t.Error("SessSetCacheSize() does not save anything to ctx")
 	}
 }
+
+func TestCtxSeReadAhead(t *testing.T) {
+	ctx, _ := NewCtx()
+	ctx.SetReadAhead(1)
+	y := ctx.GetReadAhead()
+	if y != 1 {
+		t.Error("SetReadAhead() didn't execute properly")
+	}
+}

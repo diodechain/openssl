@@ -584,3 +584,15 @@ func (c *Ctx) SessSetCacheSize(t int) int {
 func (c *Ctx) SessGetCacheSize() int {
 	return int(C.X_SSL_CTX_sess_get_cache_size(c.ctx))
 }
+
+// Set read ahead
+// https://www.openssl.org/docs/ssl/SSL_CTX_set_read_ahead.html
+func (c *Ctx) SetReadAhead(yes int) {
+	C.X_SSL_CTX_set_read_ahead(c.ctx, C.int(yes))
+}
+
+// Get read ahead
+// https://www.openssl.org/docs/ssl/SSL_CTX_get_read_ahead.html
+func (c *Ctx) GetReadAhead() int {
+	return int(C.X_SSL_CTX_get_read_ahead(c.ctx))
+}

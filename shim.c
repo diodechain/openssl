@@ -912,6 +912,15 @@ long X_SSL_CTX_get_mode(SSL_CTX* ctx) {
 	return SSL_CTX_get_mode(ctx);
 }
 
+void X_SSL_CTX_set_read_ahead(SSL_CTX *ctx, int yes) {
+    SSL_CTX_set_read_ahead(ctx, yes);
+    return;
+}
+
+int X_SSL_CTX_get_read_ahead(SSL_CTX *ctx) {
+    return SSL_CTX_get_read_ahead(ctx);
+}
+
 long X_SSL_CTX_set_session_cache_mode(SSL_CTX* ctx, long modes) {
 	return SSL_CTX_set_session_cache_mode(ctx, modes);
 }

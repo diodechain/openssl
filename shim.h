@@ -71,6 +71,8 @@ extern long X_SSL_CTX_clear_options(SSL_CTX* ctx, long options);
 extern long X_SSL_CTX_get_options(SSL_CTX* ctx);
 extern long X_SSL_CTX_set_mode(SSL_CTX* ctx, long modes);
 extern long X_SSL_CTX_get_mode(SSL_CTX* ctx);
+extern void X_SSL_CTX_set_read_ahead(SSL_CTX *ctx, int yes);
+extern int X_SSL_CTX_get_read_ahead(SSL_CTX *ctx);
 extern long X_SSL_CTX_set_session_cache_mode(SSL_CTX* ctx, long modes);
 extern long X_SSL_CTX_sess_set_cache_size(SSL_CTX* ctx, long t);
 extern long X_SSL_CTX_sess_get_cache_size(SSL_CTX* ctx);
