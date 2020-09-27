@@ -405,13 +405,6 @@ func LoadPrivateKeyFromDER(der_block []byte) (PrivateKey, error) {
 	return p, nil
 }
 
-// LoadPrivateKeyFromPEMWidthPassword loads a private key from a PEM-encoded block.
-// Backwards-compatible with typo
-func LoadPrivateKeyFromPEMWidthPassword(pem_block []byte, password string) (
-	PrivateKey, error) {
-	return LoadPrivateKeyFromPEMWithPassword(pem_block, password)
-}
-
 // LoadPublicKeyFromPEM loads a public key from a PEM-encoded block.
 func LoadPublicKeyFromPEM(pem_block []byte) (PublicKey, error) {
 	if len(pem_block) == 0 {
