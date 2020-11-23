@@ -21,13 +21,13 @@ import (
 func TestOpensslVersion(t *testing.T) {
 	ver := OpensslVersion()
 	if len(ver) <= 0 {
-		t.Fatalf("Counldn't retrieve openssl version")
+		t.Fatalf("Couldn't retrieve openssl version")
 	}
 }
 
 func TestSSLLibVersion(t *testing.T) {
 	ver := SSLLibVersion()
 	if len(ver) <= 0 {
-		t.Fatalf("Counldn't retrieve openssl share library version")
+		t.Fatalf("Couldn't retrieve openssl share library version")
 	}
 }
