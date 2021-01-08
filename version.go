@@ -16,6 +16,7 @@ package openssl
 
 // #include "shim.h"
 // #include <openssl/opensslv.h>
+// #include <openssl/crypto.h>
 import "C"
 
 // OpensslVersion returns openssl version
