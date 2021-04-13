@@ -417,6 +417,20 @@ const (
 	ReleaseBuffers Modes = C.SSL_MODE_RELEASE_BUFFERS
 )
 
+// SetSigAlgsList sets the allowed signature algorithms. See
+// https://www.openssl.org/docs/man1.1.0/man3/SSL_CTX_set1_sigalgs_list.html
+func (c *Ctx) SetSigAlgsList(algs string) error {
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
+
+	calgs := C.CString(algs)
+	defer C.free(unsafe.Pointer(calgs))
+	if int(C.X_SSL_CTX_set1_sigalgs_list(c.ctx, calgs)) != 1 {
+		return errorFromErrorQueue()
+	}
+	return nil
+}
+
 // SetMode sets context modes. See
 // http://www.openssl.org/docs/ssl/SSL_CTX_set_mode.html
 func (c *Ctx) SetMode(modes Modes) Modes {

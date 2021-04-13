@@ -104,6 +104,10 @@ int X_EVP_DigestVerify(EVP_MD_CTX *ctx, const unsigned char *sigret,
  */
 #if OPENSSL_VERSION_NUMBER >= 0x1010000fL
 
+long X_SSL_CTX_set1_sigalgs_list(SSL_CTX *ctx, const char *str) {
+    return SSL_CTX_set1_sigalgs_list(ctx, str);
+}
+
 void X_BIO_set_data(BIO* bio, void* data) {
 	BIO_set_data(bio, data);
 }
@@ -228,6 +232,10 @@ int X_PEM_write_bio_PrivateKey_traditional(BIO *bio, EVP_PKEY *key, const EVP_CI
  ************************************************
  */
 #if OPENSSL_VERSION_NUMBER < 0x1010000fL
+
+long X_SSL_CTX_set1_sigalgs_list(SSL_CTX *ctx, const char *str) {
+    return 1;
+}
 
 static int x_bio_create(BIO *b) {
 	b->shutdown = 1;
