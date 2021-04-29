@@ -379,6 +379,23 @@ func (c *Ctx) LoadVerifyLocations(ca_file string, ca_path string) error {
 	return nil
 }
 
+type Flags int
+
+const (
+	TlsStrict        Flags = C.SSL_CERT_FLAG_TLS_STRICT
+	SuiteB128LosOnly Flags = C.SSL_CERT_FLAG_SUITEB_128_LOS_ONLY
+	SuiteB192Los     Flags = C.SSL_CERT_FLAG_SUITEB_192_LOS
+	SuiteB128Los     Flags = C.SSL_CERT_FLAG_SUITEB_128_LOS
+	BrokenProtocol   Flags = C.SSL_CERT_FLAG_BROKEN_PROTOCOL
+)
+
+// SetOptions sets context options. See
+// http://www.openssl.org/docs/ssl/SSL_CTX_set_options.html
+func (c *Ctx) SetCertFlags(flags Flags) Flags {
+	return Flags(C.X_SSL_CTX_set_cert_flags(
+		c.ctx, C.long(flags)))
+}
+
 type Options int
 
 const (
