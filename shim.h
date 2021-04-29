@@ -45,6 +45,7 @@ extern void X_OPENSSL_free(void *ref);
 extern void *X_OPENSSL_malloc(size_t size);
 
 /* SSL methods */
+extern long X_SSL_get0_ec_point_formats(SSL *ssl, char** plist);
 extern long X_SSL_set_options(SSL* ssl, long options);
 extern long X_SSL_get_options(SSL* ssl);
 extern long X_SSL_clear_options(SSL* ssl, long options);

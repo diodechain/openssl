@@ -900,6 +900,10 @@ int X_SSL_CTX_new_index() {
 	return SSL_CTX_get_ex_new_index(0, NULL, NULL, NULL, NULL);
 }
 
+long X_SSL_get0_ec_point_formats(SSL *ssl, char** plist) {
+    return SSL_get0_ec_point_formats(ssl, plist);
+}
+
 long X_SSL_CTX_set_cert_flags(SSL_CTX *ctx, long flags) {
     return SSL_CTX_set_cert_flags(ctx, flags);
 }
