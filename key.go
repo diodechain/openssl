@@ -228,7 +228,6 @@ func (key *pKey) MarshalPKCS1PrivateKeyPEM() (pem_block []byte,
 	// to a PKCS8 key.
 	if int(C.X_PEM_write_bio_PrivateKey_traditional(bio, key.key, nil, nil,
 		C.int(0), nil, nil)) != 1 {
-		PrintErrors()
 		return nil, errors.New("failed dumping private key")
 	}
 
