@@ -14,4 +14,5 @@ $SUDO mkdir -p $PREFIX/ssl && \
     $SUDO cp -R include/internal $PREFIX/include && \
     $SUDO cp *.h $PREFIX/ && \
     $SUDO cp ssl/*.h $PREFIX/ssl/ && \
-    $SUDO cp -R ssl/record ssl/statem $PREFIX/ssl/
+    $SUDO cp -R ssl/record ssl/statem $PREFIX/ssl/ && \
+    ls -lha $PREFIX/ssl
