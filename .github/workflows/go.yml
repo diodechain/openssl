@@ -17,6 +17,7 @@ jobs:
       with:
           install: pacman-mirrors pkg-config base-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-go
           update: false
+    - uses: actions/checkout@v1
     - if: runner.os == 'Windows'
       shell: msys2 {0}
       run: |
@@ -29,7 +30,6 @@ jobs:
     - if: runner.os == 'Linux'
       run: |
         SUDO=sudo bash ./install_openssl.sh
-    - uses: actions/checkout@v1
     - if: runner.os == 'Windows'
       shell: msys2 {0}
       run: |
