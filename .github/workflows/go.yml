@@ -26,7 +26,7 @@ jobs:
     - if: runner.os == 'macOS'
       run: |
         brew install binutils coreutils wget
-        bash ./install_openssl.sh
+        SUDO=sudo bash ./install_openssl.sh
     - if: runner.os == 'Linux'
       run: |
         SUDO=sudo bash ./install_openssl.sh
