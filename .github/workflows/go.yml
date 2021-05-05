@@ -34,8 +34,8 @@ jobs:
     - if: runner.os == 'Windows'
       shell: msys2 {0}
       run: |
-        make
-        make build
+        bash make
+        bash make build
     - uses: actions/setup-go@v1
       if: runner.os != 'Windows'
       with:
