@@ -5,7 +5,7 @@ default: test clean
 
 .PHONY: test
 test:
-	go test -tags openssl_static --race ./...
+	go test ./...
 
 .PHONY: lint
 lint:
@@ -27,7 +27,7 @@ seccheck:
 
 .PHONY: build
 build:
-	go build -tags openssl_static ./...
+	go build ./...
 
 .PHONY: clean
 clean:
