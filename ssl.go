@@ -73,6 +73,36 @@ func (s *SSL) GetServername() string {
 	return C.GoString(C.SSL_get_servername(s.ssl, C.TLSEXT_NAMETYPE_host_name))
 }
 
+type PointFormat byte
+
+const (
+	Uncompressed            PointFormat = C.TLSEXT_ECPOINTFORMAT_uncompressed
+	AnsiX962CompressedPrime PointFormat = C.TLSEXT_ECPOINTFORMAT_ansiX962_compressed_prime
+	AnsiX962CompressedChar2 PointFormat = C.TLSEXT_ECPOINTFORMAT_ansiX962_compressed_char2
+)
+
+// SetEcPointFormats sets the accepted point formats
+func (s *SSL) SetEcPointFormats(list []PointFormat) int {
+	cformats := unsafe.Pointer(&list[0])
+	return int(C.X_SSL_set0_ec_point_formats(s.ssl, (*C.char)(cformats), C.ulong(len(list))))
+}
+
+// GetEcPointFormats sets the accepted point formats
+func (s *SSL) GetEcPointFormats() (list []PointFormat) {
+	var ptr *C.char
+	length := C.X_SSL_get0_ec_point_formats(s.ssl, &ptr)
+
+	if length == 0 {
+		return
+	}
+
+	bytes := C.GoBytes(unsafe.Pointer(ptr), C.int(length))
+	for i := 0; i < int(length); i++ {
+		list = append(list, PointFormat(bytes[i]))
+	}
+	return
+}
+
 // GetOptions returns SSL options. See
 // https://www.openssl.org/docs/ssl/SSL_CTX_set_options.html
 func (s *SSL) GetOptions() Options {
