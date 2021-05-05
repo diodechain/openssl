@@ -109,8 +109,6 @@ extern BIO *X_BIO_new_write_bio();
 extern BIO *X_BIO_new_read_bio();
 
 /* EVP methods */
-extern const int X_ED25519_SUPPORT;
-extern int X_EVP_PKEY_ED25519;
 extern const EVP_MD *X_EVP_get_digestbyname(const char *name);
 extern EVP_MD_CTX *X_EVP_MD_CTX_new();
 extern void X_EVP_MD_CTX_free(EVP_MD_CTX *ctx);
@@ -177,3 +175,6 @@ extern int X_X509_set_version(X509 *x, long version);
 
 /* PEM methods */
 extern int X_PEM_write_bio_PrivateKey_traditional(BIO *bio, EVP_PKEY *key, const EVP_CIPHER *enc, unsigned char *kstr, int klen, pem_password_cb *cb, void *u);
+
+/* ERR methods */
+void X_ERR_print_errors();

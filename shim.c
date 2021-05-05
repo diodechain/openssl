@@ -37,9 +37,6 @@ static int go_write_bio_puts(BIO *b, const char *str) {
 	return go_write_bio_write(b, (char*)str, (int)strlen(str));
 }
 
-const int X_ED25519_SUPPORT = 1;
-int X_EVP_PKEY_ED25519 = EVP_PKEY_ED25519;
-
 int X_EVP_DigestSignInit(EVP_MD_CTX *ctx, EVP_PKEY_CTX **pctx,
 		const EVP_MD *type, ENGINE *e, EVP_PKEY *pkey){
 	return EVP_DigestSignInit(ctx, pctx, type, e, pkey);
@@ -611,4 +608,13 @@ long X_X509_get_version(const X509 *x) {
 
 int X_X509_set_version(X509 *x, long version) {
 	return X509_set_version(x, version);
+}
+
+int static logit(const char *str, size_t len, void*u) {
+    fputs(str, stderr);
+    return 0;
+}
+
+void X_ERR_print_errors() {
+    ERR_print_errors_cb(logit, 0);
 }
