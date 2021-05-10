@@ -17,6 +17,17 @@
 
 #include <string.h>
 
+#if defined(_WIN32_WINNT) || defined(_WIN32_WCE)
+#  include <winsock2.h>
+#  include <ws2tcpip.h>
+#  undef X509_NAME
+#  undef X509_EXTENSIONS
+#  undef PKCS7_ISSUER_AND_SERIAL
+#  undef PKCS7_SIGNER_INFO
+#  undef OCSP_REQUEST
+#  undef OCSP_RESPONSE
+#endif
+
 #include "shim.h"
 #include "openssl/engine.h"
 

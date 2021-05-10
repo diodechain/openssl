@@ -84,7 +84,7 @@ const (
 // SetEcPointFormats sets the accepted point formats
 func (s *SSL) SetEcPointFormats(list []PointFormat) int {
 	cformats := unsafe.Pointer(&list[0])
-	return int(C.X_SSL_set0_ec_point_formats(s.ssl, (*C.char)(cformats), C.ulong(len(list))))
+	return int(C.X_SSL_set0_ec_point_formats(s.ssl, (*C.char)(cformats), C.size_t(len(list))))
 }
 
 // GetEcPointFormats sets the accepted point formats

@@ -14,6 +14,8 @@
 
 package openssl
 
-// #cgo CFLAGS: -I/usr/local/openssl/include -I/usr/local/openssl -Wno-deprecated-declarations
-// #cgo LDFLAGS: /usr/local/openssl/lib/libssl.a /usr/local/openssl/lib/libcrypto.a -ldl
+// #cgo linux darwin CFLAGS: -I/usr/local/openssl/include -I/usr/local/openssl -Wno-deprecated-declarations
+// #cgo linux darwin LDFLAGS: /usr/local/openssl/lib/libssl.a /usr/local/openssl/lib/libcrypto.a -ldl
+// #cgo windows CFLAGS: -IC:/msys64/usr/local/openssl/include -IC:/msys64/usr/local/openssl -Wno-deprecated-declarations
+// #cgo windows LDFLAGS: C:/msys64/usr/local/openssl/lib/libssl.a C:/msys64/usr/local/openssl/lib/libcrypto.a -ldl -lws2_32
 import "C"

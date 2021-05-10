@@ -13,7 +13,7 @@ script:
     - make test
     # test build on pi
     # - docker container run crosscompile:0.1 make
-    - docker container run -v  "${PWD}:/build/diode_client" crosscompile:0.1 go build -tags openssl_static_pi
+    - docker container run -v  "${PWD}:/build/diode_client" crosscompile:0.1 go build
 
 env:
   - GO111MODULE=on
