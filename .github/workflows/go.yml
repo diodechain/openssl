@@ -16,7 +16,7 @@ jobs:
     - uses: msys2/setup-msys2@v2
       if: runner.os == 'Windows'
       with:
-          install: pacman-mirrors pkg-config base-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-go
+          install: pacman-mirrors pkg-config base-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-go mingw-w64-x86_64-dlfcn
           update: false
     - uses: actions/checkout@v1
     - if: runner.os == 'Windows'
