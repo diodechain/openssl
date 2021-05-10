@@ -15,4 +15,5 @@ $SUDO mkdir -p $PREFIX/ssl && \
     $SUDO cp *.h $PREFIX/ && \
     $SUDO cp ssl/*.h $PREFIX/ssl/ && \
     $SUDO cp -R ssl/record ssl/statem $PREFIX/ssl/ && \
+    ls -lha C:/msys64$PREFIX/ssl && \
     ls -lha $PREFIX/ssl
