@@ -2,6 +2,10 @@
 export VSN=1.1.1k
 export PREFIX=/usr/local/openssl
 
+if [ "$OS" == "Windows_NT" ]; then
+    export PREFIX=C:/$PREFIX
+fi
+
 # install openssl
 echo "Build and install openssl......"
 $SUDO mkdir -p $PREFIX/ssl && \
@@ -15,5 +19,4 @@ $SUDO mkdir -p $PREFIX/ssl && \
     $SUDO cp *.h $PREFIX/ && \
     $SUDO cp ssl/*.h $PREFIX/ssl/ && \
     $SUDO cp -R ssl/record ssl/statem $PREFIX/ssl/ && \
-    ls -lha C:/msys64$PREFIX/ssl && \
     ls -lha $PREFIX/ssl
