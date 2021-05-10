@@ -3,7 +3,7 @@ export VSN=1.1.1k
 export PREFIX=/usr/local/openssl
 
 if [ "$OS" == "Windows_NT" ]; then
-    export PREFIX=C:/$PREFIX
+    export PREFIX=C:/msys64/$PREFIX
 fi
 
 # install openssl
