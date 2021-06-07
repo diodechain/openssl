@@ -410,7 +410,10 @@ func (c *Conn) shutdownLoop() error {
 		shutdown_tries = shutdown_tries + 1
 		err = c.handleError(c.shutdown())
 		if err == nil {
-			return c.flushOutputBuffer()
+			// This can often be executed against a closed connection when
+			// both sides try closing the connection at the same time
+			c.flushOutputBuffer()
+			return nil
 		}
 		if err == tryAgain && shutdown_tries >= 2 {
 			return errors.New("shutdown requested a third time?")
