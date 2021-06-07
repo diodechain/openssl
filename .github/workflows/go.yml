@@ -11,55 +11,30 @@ jobs:
         os: ["windows-latest", "ubuntu-latest", "macOS-latest"]
         go: ["1.15.x"]
     runs-on: ${{ matrix.os }}
-    env:
-      OPENSSL_URL: https://www.openssl.org/source/openssl-1.1.0l.tar.gz
-      OPENSSL_HASH: 74a2f756c64fd7386a29184dc0344f4831192d61dc2481a93a4c5dd727f41148
     steps:
     - uses: msys2/setup-msys2@v2
       if: runner.os == 'Windows'
       with:
-          install: pacman-mirrors pkg-config base-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-go
+          install: pacman-mirrors pkg-config base-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-go mingw-w64-x86_64-dlfcn
           update: false
-    - if: runner.os == 'Windows'
-      shell: msys2 {0}
-      run: |
-        echo "Build and install openssl......"
-        wget -O openssl.tar.gz $OPENSSL_URL
-        [ "$OPENSSL_HASH" = "$(sha256sum openssl.tar.gz | cut -d ' ' -f1)" ]
-        tar -xzf openssl.tar.gz
-        cd ./openssl-1.1.0l
-        ./Configure no-ssl3 no-ssl3-method no-zlib mingw64 --prefix=/mingw64 --openssldir=/mingw64
-        make && make install_sw install_ssldirs
-        echo "PKG_CONFIG_PATH=/mingw64/lib/pkgconfig" >> $GITHUB_ENV
-    - if: runner.os == 'macOS'
-      run: |
-        brew install binutils coreutils wget
-        echo "Build and install openssl......"
-        wget -O openssl.tar.gz $OPENSSL_URL
-        [ "$OPENSSL_HASH" = "$(sha256sum openssl.tar.gz | cut -d ' ' -f1)" ]
-        tar -xzf openssl.tar.gz
-        cd ./openssl-1.1.0l
-        ./config no-ssl3 no-ssl3-method no-zlib --prefix=/usr/local/opt/openssl
-        make && sudo make install_sw install_ssldirs
-        rm /usr/local/opt/openssl/lib/*.dylib
-        echo "/usr/local/opt/binutils/bin" >> $GITHUB_PATH
-    - if: runner.os == 'Linux'
-      run: |
-        echo "Build and install openssl......"
-        sudo mkdir /usr/local/openssl
-        wget -O openssl.tar.gz $OPENSSL_URL
-        [ "$OPENSSL_HASH" = "$(sha256sum openssl.tar.gz | cut -d ' ' -f1)" ]
-        tar -xzf openssl.tar.gz
-        cd ./openssl-1.1.0l
-        ./config no-ssl3 no-ssl3-method no-zlib --prefix=/usr/local/openssl
-        make && sudo make install_sw install_ssldirs
-        echo "PKG_CONFIG_PATH=/usr/local/openssl/lib/pkgconfig" >> $GITHUB_ENV
     - uses: actions/checkout@v1
     - if: runner.os == 'Windows'
       shell: msys2 {0}
       run: |
-        make
-        make build
+        echo "Build and install openssl......"
+        bash ./install_openssl.sh
+    - if: runner.os == 'macOS'
+      run: |
+        brew install binutils coreutils wget
+        SUDO=sudo bash ./install_openssl.sh
+    - if: runner.os == 'Linux'
+      run: |
+        SUDO=sudo bash ./install_openssl.sh
+    - if: runner.os == 'Windows'
+      shell: msys2 {0}
+      run: |
+        bash -c make
+        bash -c 'make build'
     - uses: actions/setup-go@v1
       if: runner.os != 'Windows'
       with:

@@ -25,10 +25,6 @@ import (
 	"unsafe"
 )
 
-var ( // some (effectively) constants for tests to refer to
-	ed25519_support = C.X_ED25519_SUPPORT != 0
-)
-
 type Method *C.EVP_MD
 
 var (
@@ -605,31 +601,6 @@ func GenerateECKey(curve EllipticCurve) (PrivateKey, error) {
 	}
 	if int(C.EVP_PKEY_keygen(keyCtx, &privKey)) != 1 {
 		return nil, errors.New("failed generating EC private key")
-	}
-
-	p := &pKey{key: privKey}
-	runtime.SetFinalizer(p, func(p *pKey) {
-		C.X_EVP_PKEY_free(p.key)
-	})
-	return p, nil
-}
-
-// GenerateED25519Key generates a Ed25519 key
-func GenerateED25519Key() (PrivateKey, error) {
-	// Key context
-	keyCtx := C.EVP_PKEY_CTX_new_id(C.X_EVP_PKEY_ED25519, nil)
-	if keyCtx == nil {
-		return nil, errors.New("failed creating EC parameter generation context")
-	}
-	defer C.EVP_PKEY_CTX_free(keyCtx)
-
-	// Generate the key
-	var privKey *C.EVP_PKEY
-	if int(C.EVP_PKEY_keygen_init(keyCtx)) != 1 {
-		return nil, errors.New("failed initializing ED25519 key generation context")
-	}
-	if int(C.EVP_PKEY_keygen(keyCtx, &privKey)) != 1 {
-		return nil, errors.New("failed generating ED25519 private key")
 	}
 
 	p := &pKey{key: privKey}

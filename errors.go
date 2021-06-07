@@ -1,4 +1,4 @@
-// Copyright (C) 2017. See AUTHORS.
+// Copyright (C) 2021. See AUTHORS.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,14 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build openssl_static
-
 package openssl
 
-// #cgo linux windows pkg-config: --static libssl libcrypto
-// #cgo linux windows LDFLAGS: -l:libssl.a -l:libcrypto.a
-// #cgo CFLAGS: -Wno-deprecated-declarations
-// #cgo darwin CFLAGS: -I/usr/local/opt/openssl/include
-// #cgo darwin LDFLAGS: -L/usr/local/opt/openssl/lib -lssl -lcrypto
-// #cgo windows CFLAGS: -DWIN32_LEAN_AND_MEAN
+// #include "shim.h"
 import "C"
+
+func PrintErrors() {
+	C.X_ERR_print_errors()
+}

@@ -18,16 +18,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <openssl/bio.h>
-#include <openssl/crypto.h>
-#include <openssl/dh.h>
-#include <openssl/err.h>
-#include <openssl/evp.h>
-#include <openssl/hmac.h>
-#include <openssl/pem.h>
-#include <openssl/ssl.h>
-#include <openssl/x509v3.h>
-#include <openssl/ec.h>
+#include "openssl/opensslconf.h"
+#include "openssl/bio.h"
+#include "openssl/crypto.h"
+#include "openssl/dh.h"
+#include "openssl/err.h"
+#include "openssl/evp.h"
+#include "openssl/hmac.h"
+#include "openssl/pem.h"
+#include "openssl/ssl.h"
+#include "openssl/x509v3.h"
+#include "openssl/ec.h"
 
 #ifndef SSL_MODE_RELEASE_BUFFERS
 #define SSL_MODE_RELEASE_BUFFERS 0
@@ -46,6 +47,7 @@ extern void *X_OPENSSL_malloc(size_t size);
 
 /* SSL methods */
 extern long X_SSL_get0_ec_point_formats(SSL *ssl, char** plist);
+extern long X_SSL_set0_ec_point_formats(SSL *ssl, char* plist, size_t length);
 extern long X_SSL_set_options(SSL* ssl, long options);
 extern long X_SSL_get_options(SSL* ssl);
 extern long X_SSL_clear_options(SSL* ssl, long options);
@@ -68,7 +70,6 @@ extern int X_SSL_verify_cb(int ok, X509_STORE_CTX* store);
 /* SSL_CTX methods */
 extern int X_SSL_CTX_new_index();
 extern long X_SSL_CTX_set1_sigalgs_list(SSL_CTX *ctx, const char *str);
-extern long X_SSL_CTX_set_cert_flags(SSL_CTX *ctx, long flags);
 extern long X_SSL_CTX_set_options(SSL_CTX* ctx, long options);
 extern long X_SSL_CTX_clear_options(SSL_CTX* ctx, long options);
 extern long X_SSL_CTX_get_options(SSL_CTX* ctx);
@@ -108,8 +109,6 @@ extern BIO *X_BIO_new_write_bio();
 extern BIO *X_BIO_new_read_bio();
 
 /* EVP methods */
-extern const int X_ED25519_SUPPORT;
-extern int X_EVP_PKEY_ED25519;
 extern const EVP_MD *X_EVP_get_digestbyname(const char *name);
 extern EVP_MD_CTX *X_EVP_MD_CTX_new();
 extern void X_EVP_MD_CTX_free(EVP_MD_CTX *ctx);
@@ -176,3 +175,6 @@ extern int X_X509_set_version(X509 *x, long version);
 
 /* PEM methods */
 extern int X_PEM_write_bio_PrivateKey_traditional(BIO *bio, EVP_PKEY *key, const EVP_CIPHER *enc, unsigned char *kstr, int klen, pem_password_cb *cb, void *u);
+
+/* ERR methods */
+void X_ERR_print_errors();
