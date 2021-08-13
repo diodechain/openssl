@@ -604,7 +604,7 @@ func (c *Conn) GetSession() ([]byte, error) {
 	return C.GoBytes(unsafe.Pointer(buf), slen), nil
 }
 
-func (c *Conn) setSession(session []byte) error {
+func (c *Conn) SetSession(session []byte) error {
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
 
