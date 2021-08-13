@@ -15,6 +15,9 @@
 package openssl
 
 // #include "shim.h"
+// SSL_SESSION* convert_session(const unsigned char *p, long length) {
+//   return d2i_SSL_SESSION(0, &p, length);
+// }
 import "C"
 
 import (
@@ -609,7 +612,7 @@ func (c *Conn) SetSession(session []byte) error {
 	defer runtime.UnlockOSThread()
 
 	ptr := (*C.uchar)(&session[0])
-	s := C.d2i_SSL_SESSION(nil, &ptr, C.long(len(session)))
+	s := C.convert_session(ptr, C.long(len(session)))
 	if s == nil {
 		return fmt.Errorf("unable to load session: %s", errorFromErrorQueue())
 	}
