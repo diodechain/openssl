@@ -108,7 +108,7 @@ func DialSession(network, addr string, ctx *Ctx, flags DialFlags,
 		}
 		// TODO: use operating system default certificate chain?
 	}
-	c, err := net.Dial(network, addr)
+	c, err := net.DialTimeout(network, addr, ctx.GetDialTimeout())
 	if err != nil {
 		return nil, err
 	}

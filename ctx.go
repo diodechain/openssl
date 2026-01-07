@@ -41,6 +41,8 @@ type Ctx struct {
 	verify_cb VerifyCallback
 	sni_cb    TLSExtServernameCallback
 
+	dial_timeout time.Duration
+
 	ticket_store_mu sync.Mutex
 	ticket_store    *TicketStore
 }
@@ -606,4 +608,14 @@ func (c *Ctx) SetReadAhead(yes int) {
 // https://www.openssl.org/docs/ssl/SSL_CTX_get_read_ahead.html
 func (c *Ctx) GetReadAhead() int {
 	return int(C.X_SSL_CTX_get_read_ahead(c.ctx))
+}
+
+// Set dial timeout, this is forwarded to the net.DialTimeout function
+func (c *Ctx) SetDialTimeout(t time.Duration) {
+	c.dial_timeout = t
+}
+
+// Get dial timeout, this is forwarded to the net.DialTimeout function
+func (c *Ctx) GetDialTimeout() time.Duration {
+	return c.dial_timeout
 }
